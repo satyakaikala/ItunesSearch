@@ -1,4 +1,4 @@
-package com.sunkin.itunessearch;
+package com.sunkin.itunessearch.ui;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -8,15 +8,14 @@ import android.support.v7.widget.SearchView;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.widget.TextView;
+
+import com.sunkin.itunessearch.R;
 
 public class MainActivity extends AppCompatActivity {
-    TextView test;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-         test = (TextView)findViewById(R.id.test);
     }
 
     @Override
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private void  handleIntent(Intent intent){
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            test.setText(query);
         }
     }
 }
