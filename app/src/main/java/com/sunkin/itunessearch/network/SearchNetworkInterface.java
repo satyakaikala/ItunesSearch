@@ -11,7 +11,7 @@ import retrofit2.http.Query;
  * Created by skai0001 on 4/10/17.
  */
 
-public interface MovieNetworkInterface {
+public interface SearchNetworkInterface {
 
     //https://itunes.apple.com/search?term=jack+johnson&entity=musicVideo
     @GET("search")

@@ -21,6 +21,7 @@ public class SearchData implements Parcelable {
     private String trackCensoredName;
 
     @SerializedName("trackPrice")
+
     private String trackPrice;
 
     @SerializedName("artworkUrl100")
@@ -76,4 +77,56 @@ public class SearchData implements Parcelable {
                 ", previewUrl='" + previewUrl + '\'' +
                 '}';
     }
+
+    /**
+     * Local setters and getters
+     */
+    public String getTrackName() {
+        return trackName;
+    }
+
+    public void setTrackName(String trackName) {
+        this.trackName = trackName;
+    }
+
+    public String getArtworkUrl30() {
+        return artworkUrl30;
+    }
+
+    public void setArtworkUrl30(String artworkUrl30) {
+        this.artworkUrl30 = artworkUrl30;
+    }
+
+    public String getTrackCensoredName() {
+        return trackCensoredName;
+    }
+
+    public void setTrackCensoredName(String trackCensoredName) {
+        this.trackCensoredName = trackCensoredName;
+    }
+
+    public String getTrackPrice() {
+        return trackPrice;
+    }
+
+    public void setTrackPrice(String trackPrice) {
+        this.trackPrice = trackPrice;
+    }
+
+    public String getArtworkUrl100() {
+        return artworkUrl100;
+    }
+
+    public void setArtworkUrl100(String artworkUrl100) {
+        this.artworkUrl100 = artworkUrl100;
+    }
+
+    public String getPreviewUrl() {
+        return previewUrl;
+    }
+
+    public void setPreviewUrl(String previewUrl) {
+        this.previewUrl = previewUrl;
+    }
+
 }
