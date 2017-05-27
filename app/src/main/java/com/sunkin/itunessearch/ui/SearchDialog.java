@@ -81,7 +81,7 @@ public class SearchDialog extends DialogFragment {
     private void saveSearchKeyword() {
         Activity parent = getActivity();
         if (parent instanceof MainActivity) {
-            ((MainActivity) parent).saveSearchKeyword(searchTextView.getText().toString(), entitySpinner.getSelectedItem().toString());
+            ((MainActivity) parent).searchKeyword(searchTextView.getText().toString(), entitySpinner.getSelectedItem().toString());
         }
         dismissAllowingStateLoss();
     }

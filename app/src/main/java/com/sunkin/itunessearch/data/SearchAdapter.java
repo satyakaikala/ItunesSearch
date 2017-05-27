@@ -20,7 +20,7 @@ import butterknife.ButterKnife;
  * Created by kaika on 5/25/2017.
  */
 
-public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder>{
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> {
 
     private final String TAG = SearchAdapter.class.getSimpleName();
     private final Context context;
@@ -41,10 +41,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
 
     @Override
     public void onBindViewHolder(SearchAdapter.SearchViewHolder holder, int position) {
-        holder.trackName.setText(searchData.get(position).getTrackName());
+        SearchData data = searchData.get(position);
+        holder.trackName.setText(data.getTrackName());
         holder.trackPrice.setText(String.format("$%s", searchData.get(position).getTrackPrice()));
         Picasso.with(context)
-                .load(searchData.get(position).getArtworkUrl30().trim())
+                .load(data.getArtworkUrl30().trim())
                 .noFade()
                 .placeholder(R.drawable.place_holder_image)
                 .error(R.drawable.error_loading_image)
@@ -57,7 +58,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     }
 
     public interface SearchItemOnClickHandler {
-     void onClickSearchItem (SearchData searchData);
+        void onClickSearchItem(SearchData searchData);
     }
 
     class SearchViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -68,7 +69,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         @BindView(R.id.track_price)
         TextView trackPrice;
 
-        public SearchViewHolder(View itemView) {
+        private SearchViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             artImage.setOnClickListener(this);
@@ -80,15 +81,5 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         public void onClick(View v) {
             searchItemOnClickHandler.onClickSearchItem(searchData.get(getAdapterPosition()));
         }
-    }
-
-    public void addSearchData(SearchData data) {
-        searchData.add(data);
-        notifyDataSetChanged();
-    }
-
-    public void clear() {
-        searchData.clear();
-        notifyDataSetChanged();
     }
 }

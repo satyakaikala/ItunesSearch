@@ -3,8 +3,6 @@ package com.sunkin.itunessearch.ui;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -34,8 +32,6 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static final String SEARCH_TEXT_KEY = "search_text_key";
-    public static final String ENTITY_TEXT_KEY = "entity_text_key";
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -52,16 +48,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        Log.d(TAG, "OnCreate");
         searchNetwork = ApiClient.getClient().create(SearchNetworkInterface.class);
-
-//        searchAdapter = new SearchAdapter(this, this, searchDataArrayList);
-//        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-//        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-//
-//        recyclerView.setAdapter(searchAdapter);
     }
 
     public void button(@SuppressWarnings("UnusedParameters") View view) {
+        Log.d(TAG, "Fab selected");
         new SearchDialog().show(getFragmentManager(), "SearchDialogFragment");
     }
 
@@ -93,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
 
     @Override
     public void onClickSearchItem(SearchData searchData) {
+        Log.d(TAG, "Selected item info : " + searchData.toString());
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(Intent.EXTRA_TEXT, searchData);
         startActivity(intent);
@@ -101,53 +94,29 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     /**
      * Method used to save search keyword and entity
      */
-    void saveSearchKeyword(String keyword, String entity) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(SEARCH_TEXT_KEY, keyword);
-        editor.putString(ENTITY_TEXT_KEY, entity);
-        editor.apply();
+    void searchKeyword(String keyword, String entity) {
+        Log.d(TAG, "Fab search, searching for " + keyword+ " in " + entity + " category");
         getSearchItems(keyword, entity);
     }
 
     private void getSearchItems(String keyword, String entity) {
-        searchAdapter.clear();
         Call<SearchResponse> call = searchNetwork.getSearchResults(keyword, entity);
-            call.enqueue(new Callback<SearchResponse>() {
-                @Override
-                public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                    searchDataArrayList = response.body().getResults();
-                    searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
-                    recyclerView.setAdapter(searchAdapter);
-                    StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-                    recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                    searchAdapter.notifyDataSetChanged();
-                }
+        call.enqueue(new Callback<SearchResponse>() {
+            @Override
+            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
+                searchDataArrayList = response.body().getResults();
+                Log.d(TAG, "Received response successfully : " + searchDataArrayList.toString());
+                searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
+                recyclerView.setAdapter(searchAdapter);
+                StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                searchAdapter.notifyDataSetChanged();
+            }
 
-                @Override
-                public void onFailure(Call<SearchResponse> call, Throwable t) {
-                    Log.d(TAG, "Search failure" + t.toString());
-                }
-            });
-
-//        Observable<SearchData> searchResponseObservable = searchNetwork.getResults(keyword, entity);
-//        searchResponseObservable.subscribeOn(Schedulers.newThread())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<SearchData>() {
-//                    @Override
-//                    public void onCompleted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Log.d(TAG, "Search failure" + e.toString());
-//                    }
-//
-//                    @Override
-//                    public void onNext(SearchData searchResponse) {
-//                        searchAdapter.addSearchData(searchResponse);
-//                    }
-//                });
+            @Override
+            public void onFailure(Call<SearchResponse> call, Throwable t) {
+                Log.d(TAG, "Search failure" + t.toString());
+            }
+        });
     }
 }
