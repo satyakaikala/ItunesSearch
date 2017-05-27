@@ -81,4 +81,14 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
             searchItemOnClickHandler.onClickSearchItem(searchData.get(getAdapterPosition()));
         }
     }
+
+    public void addSearchData(SearchData data) {
+        searchData.add(data);
+        notifyDataSetChanged();
+    }
+
+    public void clear() {
+        searchData.clear();
+        notifyDataSetChanged();
+    }
 }

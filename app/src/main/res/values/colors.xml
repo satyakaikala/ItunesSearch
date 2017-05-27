@@ -6,4 +6,6 @@
     <color name="colorTitle">#ffffff</color>
     <color name="photo_placeholder">#ccc</color>
     <color name="primary_text">#212121</color>
+    <color name="md_orange_500">#FF9800</color>
+
 </resources>
