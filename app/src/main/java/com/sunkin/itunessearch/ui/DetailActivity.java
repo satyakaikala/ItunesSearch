@@ -6,7 +6,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -49,9 +51,17 @@ public class DetailActivity extends AppCompatActivity {
                     .error(R.drawable.error_loading_image)
                     .into(artImageView);
             titleText.setText(searchData.getTrackName());
-            setTitle(searchData.getTrackName());
             price.setText(String.format("$%s", searchData.getTrackPrice()));
-            previewVideo.setVideoURI(Uri.parse(searchData.getPreviewUrl()));
+            try {
+                MediaController mediaController = new MediaController(this);
+                mediaController.setAnchorView(previewVideo);
+                previewVideo.setVideoURI(Uri.parse(searchData.getPreviewUrl()));
+
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            previewVideo.requestFocus();
             previewVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {

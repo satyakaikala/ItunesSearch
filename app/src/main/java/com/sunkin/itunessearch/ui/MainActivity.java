@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sunkin.itunessearch.R;
 import com.sunkin.itunessearch.data.SearchAdapter;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         handleIntent(intent);
     }
 
-    private void handleIntent(Intent intent) {
+    void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             getSearchItems(query, "musicVideo");
@@ -99,18 +100,22 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         getSearchItems(keyword, entity);
     }
 
-    private void getSearchItems(String keyword, String entity) {
+    void getSearchItems(String keyword, String entity) {
         Call<SearchResponse> call = searchNetwork.getSearchResults(keyword, entity);
         call.enqueue(new Callback<SearchResponse>() {
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
                 searchDataArrayList = response.body().getResults();
-                Log.d(TAG, "Received response successfully : " + searchDataArrayList.toString());
-                searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
-                recyclerView.setAdapter(searchAdapter);
-                StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-                recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                searchAdapter.notifyDataSetChanged();
+                if (searchDataArrayList.size() != 0) {
+                    Log.d(TAG, "Received response successfully : " + searchDataArrayList.toString());
+                    searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
+                    recyclerView.setAdapter(searchAdapter);
+                    StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                    recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                    searchAdapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(MainActivity.this, "No items found. ! Please try again.", Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
@@ -119,4 +124,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
             }
         });
     }
+
+
 }

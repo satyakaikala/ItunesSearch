@@ -17,11 +17,5 @@ public interface SearchNetworkInterface {
 
     //https://itunes.apple.com/search?term=jack+johnson&entity=musicVideo
     @GET("search")
-    Call<SearchResponse> getSearchResults(@Query("term") String query);
-
-    @GET("search")
     Call<SearchResponse> getSearchResults(@Query("term") String query, @Query("entity") String entity);
-
-    @GET("search")
-    Observable<SearchData> getResults(@Query("term") String query, @Query("entity") String entity);
 }
