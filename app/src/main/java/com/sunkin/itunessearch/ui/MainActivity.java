@@ -3,6 +3,8 @@ package com.sunkin.itunessearch.ui;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -33,6 +35,8 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    public static final String SEARCH_TEXT = "search_text";
+    public static final String SEARCH_TEXT_FAB = "search_text_fab";
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -41,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
 
     private SearchAdapter searchAdapter;
     private ArrayList<SearchData> searchDataArrayList;
+    private SearchView searchView;
 
     private static SearchNetworkInterface searchNetwork;
 
@@ -55,7 +60,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
 
     public void button(@SuppressWarnings("UnusedParameters") View view) {
         Log.d(TAG, "Fab selected");
-        new SearchDialog().show(getFragmentManager(), "SearchDialogFragment");
+        Bundle args = new Bundle();
+        SearchDialog dialog = new SearchDialog();
+        args.putString(SEARCH_TEXT_FAB, searchView.getQuery().toString());
+        dialog.setArguments(args);
+        dialog.show(getFragmentManager(), "SearchDialogFragment");
     }
 
     @Override
@@ -65,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         inflater.inflate(R.menu.main_menu, menu);
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         return true;
@@ -81,6 +90,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             getSearchItems(query, "musicVideo");
+            searchView.setQuery("", false);
+            searchView.clearFocus();
         }
     }
 

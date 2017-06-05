@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -21,6 +22,8 @@ import com.sunkin.itunessearch.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.sunkin.itunessearch.ui.MainActivity.SEARCH_TEXT_FAB;
 
 /**
  * Created by kaika on 5/26/2017.
@@ -43,6 +46,10 @@ public class SearchDialog extends DialogFragment {
 
         ButterKnife.bind(this, customView);
         setupSpinner();
+        Bundle intent = getArguments();
+        String searchQuery = intent.getString(SEARCH_TEXT_FAB);
+
+        searchTextView.setText(searchQuery);
         searchTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -57,6 +64,7 @@ public class SearchDialog extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 saveSearchKeyword();
+                getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
             }
         });
         builder.setNegativeButton("Cancel", null);
