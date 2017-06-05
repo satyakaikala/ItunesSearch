@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         args.putString(SEARCH_TEXT_FAB, searchView.getQuery().toString());
         dialog.setArguments(args);
         dialog.show(getFragmentManager(), "SearchDialogFragment");
+        searchView.onActionViewCollapsed();
     }
 
     @Override

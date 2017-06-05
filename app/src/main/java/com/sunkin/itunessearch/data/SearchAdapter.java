@@ -47,6 +47,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         Picasso.with(context)
                 .load(data.getArtworkUrl30().trim())
                 .noFade()
+                .fit()
                 .placeholder(R.drawable.place_holder_image)
                 .error(R.drawable.error_loading_image)
                 .into(holder.artImage);

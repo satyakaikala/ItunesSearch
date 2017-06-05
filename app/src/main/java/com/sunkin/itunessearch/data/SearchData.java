@@ -90,7 +90,7 @@ public class SearchData implements Parcelable {
     }
 
     public String getArtworkUrl30() {
-        return artworkUrl30;
+        return formateUrl(artworkUrl30);
     }
 
     public void setArtworkUrl30(String artworkUrl30) {
@@ -114,7 +114,7 @@ public class SearchData implements Parcelable {
     }
 
     public String getArtworkUrl100() {
-        return artworkUrl100;
+        return formateUrl(artworkUrl100);
     }
 
     public void setArtworkUrl100(String artworkUrl100) {
@@ -129,4 +129,12 @@ public class SearchData implements Parcelable {
         this.previewUrl = previewUrl;
     }
 
+    public String formateUrl(String url){
+        if (url.contains("100x100bb.jpg")) {
+            return url.replace("100x100bb.jpg", "540x540bb.jpg");
+        } else if (url.contains("30x30bb.jpg")) {
+            return url.replace("30x30bb.jpg", "360x240bb.jpg");
+        }
+       return url;
+    }
 }
