@@ -6,6 +6,9 @@
     <string name="no_data_available">No data is available to show. Please search again. !</string>
     <string name="dialog_hint">keyword</string>
     <string name="dialog_title">Do Search</string>
+    <string name="over_flow_menu">Over Flow Menu</string>
+    <string name="action_add_favourite">Add to Favourites</string>
+    <string name="action_remove_favorite">Remove from Favourites</string>
 
     <string-array name="entity_selection_array">
         <item>song</item>

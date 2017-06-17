@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.sunkin.itunessearch.R;
+import com.sunkin.itunessearch.Utility;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -89,8 +90,10 @@ public class SearchDialog extends DialogFragment {
     private void saveSearchKeyword() {
         Activity parent = getActivity();
         if (parent instanceof MainActivity) {
-            ((MainActivity) parent).searchKeyword(searchTextView.getText().toString(), entitySpinner.getSelectedItem().toString());
+            Utility.saveSearchKeyword(getActivity(),searchTextView.getText().toString());
+            Utility.saveSearchEntity(getActivity(), entitySpinner.getSelectedItem().toString());
+            ((MainActivity) parent).doSearch();
         }
-        dismissAllowingStateLoss();
+        dismiss();
     }
 }

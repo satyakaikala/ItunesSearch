@@ -1,10 +1,9 @@
 package com.sunkin.itunessearch.ui;
 
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -14,40 +13,36 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sunkin.itunessearch.R;
+import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchAdapter;
 import com.sunkin.itunessearch.data.SearchData;
-import com.sunkin.itunessearch.data.SearchResponse;
-import com.sunkin.itunessearch.network.ApiClient;
-import com.sunkin.itunessearch.network.SearchNetworkInterface;
+import com.sunkin.itunessearch.fetch.FetchSearchItems;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler {
+public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler, FetchSearchItems.ResponseHandler {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static final String SEARCH_TEXT = "search_text";
     public static final String SEARCH_TEXT_FAB = "search_text_fab";
-
+    public static final String FRAGMENT_TAG = "search_dialog_fragment";
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.empty_list_view)
     TextView emptyTextView;
+    @BindView(R.id.progress)
+    ProgressBar progressBar;
 
     private SearchAdapter searchAdapter;
     private ArrayList<SearchData> searchDataArrayList;
     private SearchView searchView;
-
-    private static SearchNetworkInterface searchNetwork;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Log.d(TAG, "OnCreate");
-        searchNetwork = ApiClient.getClient().create(SearchNetworkInterface.class);
     }
 
     public void button(@SuppressWarnings("UnusedParameters") View view) {
@@ -64,8 +58,20 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         SearchDialog dialog = new SearchDialog();
         args.putString(SEARCH_TEXT_FAB, searchView.getQuery().toString());
         dialog.setArguments(args);
-        dialog.show(getFragmentManager(), "SearchDialogFragment");
+        dialog.show(getFragmentManager(), FRAGMENT_TAG);
         searchView.onActionViewCollapsed();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 
     @Override
@@ -87,10 +93,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         handleIntent(intent);
     }
 
-    void handleIntent(Intent intent) {
+    protected void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            getSearchItems(query, "musicVideo");
+            Utility.saveSearchKeyword(this, query);
+            doSearch();
             searchView.setQuery("", false);
             searchView.clearFocus();
         }
@@ -107,35 +114,36 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     /**
      * Method used to save search keyword and entity
      */
-    void searchKeyword(String keyword, String entity) {
-        Log.d(TAG, "Fab search, searching for " + keyword+ " in " + entity + " category");
-        getSearchItems(keyword, entity);
+    void doSearch() {
+        Log.d(TAG, "Search started, searching for " + Utility.getSearchKeyword(this) + " in " + Utility.getSearchEntity(this) + " category");
+        FetchSearchItems doSearch = new FetchSearchItems(this);
+        doSearch.execute(Utility.getSearchKeyword(this), Utility.getSearchEntity(this));
+
     }
 
-    void getSearchItems(String keyword, String entity) {
-        Call<SearchResponse> call = searchNetwork.getSearchResults(keyword, entity);
-        call.enqueue(new Callback<SearchResponse>() {
-            @Override
-            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                searchDataArrayList = response.body().getResults();
-                if (searchDataArrayList.size() != 0) {
-                    Log.d(TAG, "Received response successfully : " + searchDataArrayList.toString());
-                    searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
-                    recyclerView.setAdapter(searchAdapter);
-                    StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-                    recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                    searchAdapter.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(MainActivity.this, "No items found. ! Please try again.", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SearchResponse> call, Throwable t) {
-                Log.d(TAG, "Search failure" + t.toString());
-            }
-        });
+    @Override
+    public void updateSearchResults(ArrayList<SearchData> searchData) {
+        if (searchData.size() != 0) {
+            Log.d(TAG, "Received response successfully : " + searchData.toString());
+            searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchData);
+            recyclerView.setAdapter(searchAdapter);
+            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+            recyclerView.setLayoutManager(staggeredGridLayoutManager);
+            searchAdapter.notifyDataSetChanged();
+        } else {
+            Toast.makeText(MainActivity.this, "No items found. ! Please try again.", Toast.LENGTH_LONG).show();
+        }
     }
 
+    @Override
+    public void searchStarted() {
+        Log.d(TAG, "Search started, showing progress ");
+        progressBar.setVisibility(View.VISIBLE);
+    }
 
+    @Override
+    public void searchCompleted() {
+        Log.d(TAG, "Search completed, stopped progress ");
+        progressBar.setVisibility(View.GONE);
+    }
 }

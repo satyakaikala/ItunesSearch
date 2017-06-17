@@ -1,47 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clickable="true"
-    android:focusable="true"
-    android:layout_margin="4dp"
-    android:foreground="?selectableItemBackground">
-    <LinearLayout
+    android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_margin="4dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?selectableItemBackground"
+        app:cardCornerRadius="0dp">
 
-        <ImageView
-            android:id="@+id/art_image_url"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@color/photo_placeholder"
-            android:adjustViewBounds="true"/>
-        <TextView
-            android:id="@+id/track_name"
-            style="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
-            android:textSize="20sp"
-            android:textColor="@color/primary_text"
-            android:padding="@dimen/text_view_padding"
-            android:ellipsize="end"
-            android:maxLines="4" />
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/track_price"
-            style="@style/TextAppearance.AppCompat.Body1"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
-            android:textStyle="bold|italic"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="16dp"
-            android:textColor="#6000"
-            android:maxLines="1"/>
-    </LinearLayout>
-</android.support.v7.widget.CardView>
+            <ImageView
+                android:id="@+id/art_image_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <TextView
+                android:id="@+id/track_name"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/art_image_url"
+                android:ellipsize="end"
+                android:maxLines="4"
+                android:padding="@dimen/text_view_padding"
+                android:textColor="@color/primary_text"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/track_price"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/track_name"
+                android:maxLines="1"
+                android:paddingBottom="16dp"
+                android:paddingEnd="16dp"
+                android:paddingStart="16dp"
+                android:textColor="#6000"
+                android:textStyle="bold|italic" />
+
+            <ImageView
+                android:id="@+id/over_flow_menu"
+                android:layout_width="20dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/art_image_url"
+                android:layout_marginTop="10dp"
+                android:contentDescription="@string/over_flow_menu"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_action_more_vert" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+</LinearLayout>

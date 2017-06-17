@@ -1,12 +1,16 @@
 package com.sunkin.itunessearch.data;
 
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.sunkin.itunessearch.R;
@@ -40,7 +44,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     }
 
     @Override
-    public void onBindViewHolder(SearchAdapter.SearchViewHolder holder, int position) {
+    public void onBindViewHolder(final SearchAdapter.SearchViewHolder holder, int position) {
         SearchData data = searchData.get(position);
         holder.trackName.setText(data.getTrackName());
         holder.trackPrice.setText(String.format("$%s", searchData.get(position).getTrackPrice()));
@@ -51,6 +55,19 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
                 .placeholder(R.drawable.place_holder_image)
                 .error(R.drawable.error_loading_image)
                 .into(holder.artImage);
+        holder.overFlowMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showOverFlowMenu(holder.overFlowMenu);
+            }
+        });
+    }
+
+    private void showOverFlowMenu(View overFlowMenu) {
+        PopupMenu popUpMenu = new PopupMenu(context, overFlowMenu);
+        MenuInflater inflater = popUpMenu.getMenuInflater();
+        inflater.inflate(R.menu.over_flow_menu, popUpMenu.getMenu());
+        popUpMenu.setOnMenuItemClickListener(new MenuItemClickListener());
     }
 
     @Override
@@ -69,6 +86,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         TextView trackName;
         @BindView(R.id.track_price)
         TextView trackPrice;
+        @BindView(R.id.over_flow_menu)
+        ImageView overFlowMenu;
 
         private SearchViewHolder(View itemView) {
             super(itemView);
@@ -76,11 +95,32 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
             artImage.setOnClickListener(this);
             trackName.setOnClickListener(this);
             trackPrice.setOnClickListener(this);
+            overFlowMenu.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             searchItemOnClickHandler.onClickSearchItem(searchData.get(getAdapterPosition()));
+        }
+    }
+
+    private class MenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
+        public MenuItemClickListener() {
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_add_favourite:
+                    Toast.makeText(context, "Add to favourite", Toast.LENGTH_SHORT).show();
+                    item.setVisible(false);
+                    return true;
+                case R.id.action_remove_favourite:
+                    Toast.makeText(context, "Removed from favourite", Toast.LENGTH_SHORT).show();
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }
