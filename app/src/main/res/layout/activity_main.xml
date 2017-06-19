@@ -21,8 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="@string/no_data_available"
-        android:visibility="gone" />
+        android:text="@string/no_data_available"/>
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/toolbar_container"
@@ -41,7 +40,7 @@
         android:onClick="button"
         app:layout_anchorGravity="bottom|right|end"
         android:src="@drawable/fab_search"
-        app:backgroundTint="#FF9800"
+        app:backgroundTint="@color/colorAccent"
         app:borderWidth="0dp"
         app:elevation="6dp"
         app:fabSize="normal"

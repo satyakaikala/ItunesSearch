@@ -13,8 +13,10 @@ import android.preference.PreferenceManager;
 public class Utility {
 
     public static final String BASE_URL = "https://itunes.apple.com/";
-    public static final String SEARCH_KEYWORD_KEY = "search_keyword";
-    public static final String SEARCH_ENTITY_KEY = "entity_key";
+    private static final String SEARCH_KEYWORD_KEY = "search_keyword";
+    private static final String SEARCH_ENTITY_KEY = "entity_key";
+    public static final String TRUE = "true";
+    public static final String FALSE = "false";
 
     public static boolean isOnline(Context context) {
         ConnectivityManager cm =
@@ -45,5 +47,13 @@ public class Utility {
     public static String getSearchEntity(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getString(SEARCH_ENTITY_KEY, "musicVideo");
+    }
+
+    public static boolean toBoolean(String selection) {
+        boolean fav = false;
+        if (Boolean.parseBoolean(selection)){
+            fav = true;
+        }
+        return fav;
     }
 }

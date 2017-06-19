@@ -8,6 +8,5 @@
     <item
         android:id="@+id/action_remove_favourite"
         android:orderInCategory="101"
-        android:visible="false"
         android:title="@string/action_remove_favorite" />
 </menu>

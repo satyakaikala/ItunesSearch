@@ -9,6 +9,8 @@
     <string name="over_flow_menu">Over Flow Menu</string>
     <string name="action_add_favourite">Add to Favourites</string>
     <string name="action_remove_favorite">Remove from Favourites</string>
+    <string name="favorites">Favorites</string>
+    <string name="sign_out">Sign Out</string>
 
     <string-array name="entity_selection_array">
         <item>song</item>

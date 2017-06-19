@@ -11,24 +11,43 @@ import com.google.gson.annotations.SerializedName;
 
 public class SearchData implements Parcelable {
 
-    @SerializedName("trackName")
-    private String trackName;
-
-    @SerializedName("artworkUrl30")
-    private String artworkUrl30;
-
-    @SerializedName("trackCensoredName")
-    private String trackCensoredName;
-
-    @SerializedName("trackPrice")
-
-    private String trackPrice;
 
     @SerializedName("artworkUrl100")
     private String artworkUrl100;
 
+    @SerializedName("artworkUrl30")
+    private String artworkUrl30;
+
+    private String isFavorite;
+
     @SerializedName("previewUrl")
     private String previewUrl;
+
+    @SerializedName("trackCensoredName")
+    private String trackCensoredName;
+
+    @SerializedName("trackName")
+    private String trackName;
+
+    @SerializedName("trackPrice")
+    private String trackPrice;
+
+
+    public SearchData() {
+    /*
+    * Empty constructor for fire base
+    **/
+    }
+
+    public SearchData(String trackName, String artworkUrl30, String trackCensoredName, String trackPrice, String artworkUrl100, String previewUrl, String isFavorite) {
+        this.trackName = trackName;
+        this.artworkUrl30 = artworkUrl30;
+        this.trackCensoredName = trackCensoredName;
+        this.trackPrice = trackPrice;
+        this.artworkUrl100 = artworkUrl100;
+        this.previewUrl = previewUrl;
+        this.isFavorite = isFavorite;
+    }
 
     protected SearchData(Parcel in) {
         trackName = in.readString();
@@ -37,6 +56,7 @@ public class SearchData implements Parcelable {
         trackPrice = in.readString();
         artworkUrl100 = in.readString();
         previewUrl = in.readString();
+        isFavorite = in.readString();
     }
 
     public static final Creator<SearchData> CREATOR = new Creator<SearchData>() {
@@ -64,6 +84,7 @@ public class SearchData implements Parcelable {
         dest.writeString(trackPrice);
         dest.writeString(artworkUrl100);
         dest.writeString(previewUrl);
+        dest.writeString(isFavorite);
     }
 
     @Override
@@ -75,6 +96,7 @@ public class SearchData implements Parcelable {
                 ", trackPrice='" + trackPrice + '\'' +
                 ", artworkUrl100='" + artworkUrl100 + '\'' +
                 ", previewUrl='" + previewUrl + '\'' +
+                ", isFavorite='" + isFavorite + '\'' +
                 '}';
     }
 
@@ -129,12 +151,21 @@ public class SearchData implements Parcelable {
         this.previewUrl = previewUrl;
     }
 
-    public String formateUrl(String url){
+    public String getIsFavorite() {
+        return isFavorite;
+    }
+
+    public void setIsFavorite(String isFavorite) {
+        this.isFavorite = isFavorite;
+    }
+
+    public String formateUrl(String url) {
+        if (url == null) return "";
         if (url.contains("100x100bb.jpg")) {
             return url.replace("100x100bb.jpg", "540x540bb.jpg");
         } else if (url.contains("30x30bb.jpg")) {
             return url.replace("30x30bb.jpg", "360x240bb.jpg");
         }
-       return url;
+        return url;
     }
 }

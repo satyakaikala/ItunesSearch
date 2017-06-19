@@ -12,27 +12,36 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.sunkin.itunessearch.R;
 import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchAdapter;
 import com.sunkin.itunessearch.data.SearchData;
 import com.sunkin.itunessearch.fetch.FetchSearchItems;
+import com.sunkin.itunessearch.fetch.FirebaseHelper;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.sunkin.itunessearch.Utility.FALSE;
+import static com.sunkin.itunessearch.Utility.TRUE;
+
 public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler, FetchSearchItems.ResponseHandler {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String SEARCH_TEXT_FAB = "search_text_fab";
     public static final String FRAGMENT_TAG = "search_dialog_fragment";
+
+
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.empty_list_view)
@@ -43,6 +52,9 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private SearchAdapter searchAdapter;
     private ArrayList<SearchData> searchDataArrayList;
     private SearchView searchView;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
+    private FirebaseHelper firebaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +62,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Log.d(TAG, "OnCreate");
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference().child("searchItemsFavorites");
+        firebaseHelper = new FirebaseHelper(MainActivity.this, databaseReference, this);
     }
 
     public void button(@SuppressWarnings("UnusedParameters") View view) {
@@ -63,18 +80,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(TAG, "onRestart");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy");
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the options menu from XML
         MenuInflater inflater = getMenuInflater();
@@ -85,6 +90,20 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.favorites:
+                showFavoritesList();
+                return true;
+            case R.id.sign_out_menu:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -111,6 +130,23 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         startActivity(intent);
     }
 
+    @Override
+    public void handleFavoriteAdd(SearchData data) {
+        Log.d(TAG, "Adding to favorite list");
+        if (data != null) {
+            data.setIsFavorite(TRUE);
+            firebaseHelper.save(data);
+        }
+    }
+
+    @Override
+    public void handleFavoriteRemove(SearchData searchData) {
+        if (searchData != null) {
+            searchData.setIsFavorite(FALSE);
+            firebaseHelper.delete(searchData);
+        }
+    }
+
     /**
      * Method used to save search keyword and entity
      */
@@ -124,20 +160,30 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     @Override
     public void updateSearchResults(ArrayList<SearchData> searchData) {
         if (searchData.size() != 0) {
+            emptyTextView.setVisibility(View.GONE);
             Log.d(TAG, "Received response successfully : " + searchData.toString());
             searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchData);
             recyclerView.setAdapter(searchAdapter);
-            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-            recyclerView.setLayoutManager(staggeredGridLayoutManager);
+
             searchAdapter.notifyDataSetChanged();
         } else {
+            emptyTextView.setVisibility(View.VISIBLE);
             Toast.makeText(MainActivity.this, "No items found. ! Please try again.", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void showFavoritesList() {
+        searchAdapter = new SearchAdapter(getBaseContext(), this, firebaseHelper.retrieve());
+
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        recyclerView.setAdapter(searchAdapter);
     }
 
     @Override
     public void searchStarted() {
         Log.d(TAG, "Search started, showing progress ");
+        emptyTextView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
