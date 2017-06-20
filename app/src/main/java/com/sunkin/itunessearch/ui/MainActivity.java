@@ -1,9 +1,14 @@
 package com.sunkin.itunessearch.ui;
 
+
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v4.content.Loader;
+import android.database.Cursor;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -18,16 +23,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.sunkin.itunessearch.R;
 import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchAdapter;
 import com.sunkin.itunessearch.data.SearchData;
+import com.sunkin.itunessearch.database.SearchContract;
 import com.sunkin.itunessearch.fetch.FetchSearchItems;
-import com.sunkin.itunessearch.fetch.FirebaseHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,13 +43,15 @@ import butterknife.ButterKnife;
 import static com.sunkin.itunessearch.Utility.FALSE;
 import static com.sunkin.itunessearch.Utility.TRUE;
 
-public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler, FetchSearchItems.ResponseHandler {
+public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler, FetchSearchItems.ResponseHandler, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String SEARCH_TEXT_FAB = "search_text_fab";
     public static final String FRAGMENT_TAG = "search_dialog_fragment";
-
-
+    public static final String ANONYMOUS = "anonymous";
+    private String mUsername;
+    private static final int LOADER = 0;
+    private static final int RC_SIGN_IN = 1;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.empty_list_view)
@@ -52,9 +62,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private SearchAdapter searchAdapter;
     private ArrayList<SearchData> searchDataArrayList;
     private SearchView searchView;
-    private FirebaseDatabase firebaseDatabase;
-    private DatabaseReference databaseReference;
-    private FirebaseHelper firebaseHelper;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +71,59 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Log.d(TAG, "OnCreate");
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("searchItemsFavorites");
-        firebaseHelper = new FirebaseHelper(MainActivity.this, databaseReference, this);
+        getSupportLoaderManager().initLoader(LOADER, null, this);
+        searchDataArrayList = new ArrayList<>();
+        searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) {
+                    Toast.makeText(MainActivity.this, "You are now signed in. Welcome to Itunes Search.", Toast.LENGTH_SHORT).show();
+                    onSignedInInitailize(user.getDisplayName());
+                } else {
+                    onSignesOutCleanUp();
+                    //we can pass this providers as setProviders is deprecated
+                    List<AuthUI.IdpConfig> providers = Arrays.asList(
+                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build(),
+                            new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()
+                    );
+
+                    startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder()
+                            .setTheme(R.style.GreenTheme)
+                            .setIsSmartLockEnabled(false)
+                            .setProviders(providers)
+                            .build(), RC_SIGN_IN);
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        firebaseAuth.addAuthStateListener(authStateListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (authStateListener != null) {
+            firebaseAuth.removeAuthStateListener(authStateListener);
+        }
+        searchAdapter.clear();
+    }
+
+    private void onSignedInInitailize(String userName) {
+        mUsername = userName;
+    }
+
+    private void onSignesOutCleanUp() {
+        mUsername = ANONYMOUS;
+        searchAdapter.clear();
     }
 
     public void button(@SuppressWarnings("UnusedParameters") View view) {
@@ -97,9 +154,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         int id = item.getItemId();
         switch (id) {
             case R.id.favorites:
+                searchView.clearFocus();
+                searchView.onActionViewCollapsed();
                 showFavoritesList();
                 return true;
             case R.id.sign_out_menu:
+                AuthUI.getInstance().signOut(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -135,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         Log.d(TAG, "Adding to favorite list");
         if (data != null) {
             data.setIsFavorite(TRUE);
-            firebaseHelper.save(data);
+            Utility.saveFav(this, data);
         }
     }
 
@@ -143,8 +203,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     public void handleFavoriteRemove(SearchData searchData) {
         if (searchData != null) {
             searchData.setIsFavorite(FALSE);
-            firebaseHelper.delete(searchData);
+            Utility.removeFav(this, searchData);
         }
+        showFavoritesList();
+//        emptyTextView.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -154,30 +216,30 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         Log.d(TAG, "Search started, searching for " + Utility.getSearchKeyword(this) + " in " + Utility.getSearchEntity(this) + " category");
         FetchSearchItems doSearch = new FetchSearchItems(this);
         doSearch.execute(Utility.getSearchKeyword(this), Utility.getSearchEntity(this));
-
     }
 
     @Override
     public void updateSearchResults(ArrayList<SearchData> searchData) {
+        displayItems(searchData);
+    }
+
+    public void showFavoritesList() {
+        displayItems(Utility.getFavoriteCollection(this));
+    }
+
+    public void displayItems(ArrayList<SearchData> searchData) {
         if (searchData.size() != 0) {
             emptyTextView.setVisibility(View.GONE);
             Log.d(TAG, "Received response successfully : " + searchData.toString());
             searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchData);
             recyclerView.setAdapter(searchAdapter);
-
+            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+            recyclerView.setLayoutManager(staggeredGridLayoutManager);
             searchAdapter.notifyDataSetChanged();
         } else {
             emptyTextView.setVisibility(View.VISIBLE);
             Toast.makeText(MainActivity.this, "No items found. ! Please try again.", Toast.LENGTH_LONG).show();
         }
-    }
-
-    public void showFavoritesList() {
-        searchAdapter = new SearchAdapter(getBaseContext(), this, firebaseHelper.retrieve());
-
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-        recyclerView.setAdapter(searchAdapter);
     }
 
     @Override
@@ -192,4 +254,23 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         Log.d(TAG, "Search completed, stopped progress ");
         progressBar.setVisibility(View.GONE);
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(this, SearchContract.SearchEntry.CONTENT_URI,
+                SearchContract.SearchEntry.SEARCH_COLUMNS,
+                null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data.getCount() != 0) {
+
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
 }

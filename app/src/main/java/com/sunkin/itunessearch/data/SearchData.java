@@ -32,6 +32,9 @@ public class SearchData implements Parcelable {
     @SerializedName("trackPrice")
     private String trackPrice;
 
+    @SerializedName("trackId")
+    private String trackId;
+
 
     public SearchData() {
     /*
@@ -39,7 +42,7 @@ public class SearchData implements Parcelable {
     **/
     }
 
-    public SearchData(String trackName, String artworkUrl30, String trackCensoredName, String trackPrice, String artworkUrl100, String previewUrl, String isFavorite) {
+    public SearchData(String trackName, String artworkUrl30, String trackCensoredName, String trackPrice, String artworkUrl100, String previewUrl, String isFavorite, String trackId) {
         this.trackName = trackName;
         this.artworkUrl30 = artworkUrl30;
         this.trackCensoredName = trackCensoredName;
@@ -47,6 +50,7 @@ public class SearchData implements Parcelable {
         this.artworkUrl100 = artworkUrl100;
         this.previewUrl = previewUrl;
         this.isFavorite = isFavorite;
+        this.trackId = trackId;
     }
 
     protected SearchData(Parcel in) {
@@ -57,6 +61,7 @@ public class SearchData implements Parcelable {
         artworkUrl100 = in.readString();
         previewUrl = in.readString();
         isFavorite = in.readString();
+        trackId = in.readString();
     }
 
     public static final Creator<SearchData> CREATOR = new Creator<SearchData>() {
@@ -85,6 +90,7 @@ public class SearchData implements Parcelable {
         dest.writeString(artworkUrl100);
         dest.writeString(previewUrl);
         dest.writeString(isFavorite);
+        dest.writeString(trackId);
     }
 
     @Override
@@ -97,6 +103,7 @@ public class SearchData implements Parcelable {
                 ", artworkUrl100='" + artworkUrl100 + '\'' +
                 ", previewUrl='" + previewUrl + '\'' +
                 ", isFavorite='" + isFavorite + '\'' +
+                ", trackId='" + trackId + '\'' +
                 '}';
     }
 
@@ -157,6 +164,14 @@ public class SearchData implements Parcelable {
 
     public void setIsFavorite(String isFavorite) {
         this.isFavorite = isFavorite;
+    }
+
+    public String getTrackId() {
+        return trackId;
+    }
+
+    public void setTrackId(String trackId) {
+        this.trackId = trackId;
     }
 
     public String formateUrl(String url) {

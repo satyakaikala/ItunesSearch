@@ -3,7 +3,7 @@
     <string name="menu_search">search</string>
     <string name="search_hint">Search for music</string>
     <string name="fab_action_text">Search</string>
-    <string name="no_data_available">No data is available to show. Please search again. !</string>
+    <string name="no_data_available"> Start your search again. !</string>
     <string name="dialog_hint">keyword</string>
     <string name="dialog_title">Do Search</string>
     <string name="over_flow_menu">Over Flow Menu</string>

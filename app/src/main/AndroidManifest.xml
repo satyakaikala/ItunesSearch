@@ -33,6 +33,10 @@
             android:name=".ui.DetailActivity"
             android:parentActivityName=".ui.MainActivity" />
 
+        <provider
+            android:authorities="com.sunkin.itunessearch"
+            android:name=".database.SearchProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>

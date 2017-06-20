@@ -71,6 +71,10 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         popupMenu.show();
     }
 
+    public void clear() {
+        searchData.clear();
+    }
+
     private class MyMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
 
         @Override
