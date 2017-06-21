@@ -34,7 +34,7 @@ public class MainActivityTest {
     @Test
     public void testHandleIntent() {
         doReturn(Intent.ACTION_SEARCH).when(mockIntent).getAction();
-        doNothing().when(mainActivity).getSearchItems(any(String.class), any(String.class));
+       // doNothing().when(mainActivity).getSearchItems(any(String.class), any(String.class));
         mainActivity.handleIntent(mockIntent);
     }
 }

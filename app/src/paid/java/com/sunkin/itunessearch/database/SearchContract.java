@@ -33,6 +33,8 @@ public class SearchContract {
         public static final String COLUMN_TRACK_NAME = "trackName";
         public static final String COLUMN_TRACK_PRICE = "trackPrice";
         public static final String COLUMN_TRACK_ID = "trackId";
+        public static final String COLUMN_TRACK_ARTIST_NAME = "artistName";
+        public static final String COLUMN_WRAPPER_TYPE = "wrapperType";
 
         public static final String[] SEARCH_COLUMNS =
                 {
@@ -43,7 +45,9 @@ public class SearchContract {
                         COLUMN_TRACK_CENSORED_NAME,
                         COLUMN_TRACK_NAME,
                         COLUMN_TRACK_PRICE,
-                        COLUMN_TRACK_ID
+                        COLUMN_TRACK_ID,
+                        COLUMN_TRACK_ARTIST_NAME,
+                        COLUMN_WRAPPER_TYPE
                 };
 
         public static final int COL_TRACK_ART_WORK_100 = 0;
@@ -54,6 +58,8 @@ public class SearchContract {
         public static final int COL_TRACK_NAME = 5;
         public static final int COL_TRACK_PRICE = 6;
         public static final int COL_TRACK_ID = 7;
+        public static final int COL_TRACK_ARTIST_NAME = 8;
+        public static final int COL_WRAPPER_TYPE = 9;
 
 
         public static Uri buildSearchItemUri(long id) {

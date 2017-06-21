@@ -7,14 +7,21 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.squareup.picasso.Picasso;
 import com.sunkin.itunessearch.R;
+import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchData;
+
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,13 +36,22 @@ public class DetailActivity extends AppCompatActivity {
     ImageView artImageView;
     @BindView(R.id.track_title)
     TextView titleText;
-    @BindView(R.id.price)
-    TextView price;
+    @BindView(R.id.artistName)
+    TextView artistName;
     @BindView(R.id.video_preview)
     VideoView previewVideo;
-
+    @BindView(R.id.play_button)
+    Button playButton;
+    @BindView(R.id.pause_button)
+    Button pauseButton;
+    @BindView(R.id.share_button)
+    Button shareButton;
+    @BindView(R.id.buttons_layout)
+    LinearLayout buttonsLayout;
 
     private SearchData searchData;
+    private MediaController mediaController;
+    private static final String TRACK = "track";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,24 +67,57 @@ public class DetailActivity extends AppCompatActivity {
                     .error(R.drawable.error_loading_image)
                     .into(artImageView);
             titleText.setText(searchData.getTrackName());
-            price.setText(String.format("$%s", searchData.getTrackPrice()));
-            try {
-                MediaController mediaController = new MediaController(this);
-                mediaController.setAnchorView(previewVideo);
-                previewVideo.setVideoURI(Uri.parse(searchData.getPreviewUrl()));
-
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
+            artistName.setText(String.format("By %s", searchData.getArtistName()));
+            if (TRACK.equals(searchData.getWrapperType())) {
+                buttonsLayout.setVisibility(View.VISIBLE);
+                handleButtons();
             }
-            previewVideo.requestFocus();
-            previewVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.setLooping(true);
-                    previewVideo.start();
+        }
+    }
+
+    private void handleButtons() {
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (searchData.getPreviewUrl() != null) {
+                    playPreview();
                 }
-            });
+            }
+        });
+
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (previewVideo.isPlaying())
+                pausePreview();
+            }
+        });
+
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareButton();
+            }
+        });
+    }
+
+    private void shareButton() {
+    }
+
+    private void pausePreview() {
+        previewVideo.pause();
+    }
+
+
+    private void playPreview() {
+        try {
+            mediaController = new MediaController(this);
+            mediaController.setAnchorView(previewVideo);
+            previewVideo.setVideoURI(Uri.parse(searchData.getPreviewUrl()));
+            previewVideo.start();
+        } catch (Exception e) {
+            Log.e("Error", e.getMessage());
+            e.printStackTrace();
         }
     }
 }

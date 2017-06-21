@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "719543697678",
+    "firebase_url": "https://itunessearch-5caa2.firebaseio.com",
+    "project_id": "itunessearch-5caa2",
+    "storage_bucket": "itunessearch-5caa2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:719543697678:android:513c85c594ac68e8",
+        "android_client_info": {
+          "package_name": "com.sunkin.itunessearch.paid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "719543697678-3npkn5cqrk1abvs227uja7jbmhbof02j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sunkin.itunessearch",
+            "certificate_hash": "4004ed69d297925da5f90c811a875e2dff2fb794"
+          }
+        },
+        {
+          "client_id": "719543697678-5hmlh2fcvgdgmf59n3j96qosb32cj79s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDoW6A2dhoKODs1tQ-rE02ZVZg6xpCUkM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "719543697678-5hmlh2fcvgdgmf59n3j96qosb32cj79s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.sunkin.itunessearch.data.SearchData;
 import com.sunkin.itunessearch.database.SearchContract;
@@ -81,6 +80,8 @@ public class Utility {
                 data.setTrackName(cursor.getString(SearchContract.SearchEntry.COL_TRACK_NAME));
                 data.setTrackPrice(cursor.getString(SearchContract.SearchEntry.COL_TRACK_PRICE));
                 data.setTrackId(cursor.getString(SearchContract.SearchEntry.COL_TRACK_ID));
+                data.setTrackId(cursor.getString(SearchContract.SearchEntry.COL_TRACK_ARTIST_NAME));
+                data.setTrackId(cursor.getString(SearchContract.SearchEntry.COL_WRAPPER_TYPE));
                 searchDataArrayList.add(data);
             } while (cursor.moveToNext());
         }
@@ -97,6 +98,8 @@ public class Utility {
         values.put(SearchContract.SearchEntry.COLUMN_TRACK_NAME, searchData.getTrackName());
         values.put(SearchContract.SearchEntry.COLUMN_TRACK_PRICE, searchData.getTrackPrice());
         values.put(SearchContract.SearchEntry.COLUMN_TRACK_ID, searchData.getTrackId());
+        values.put(SearchContract.SearchEntry.COLUMN_TRACK_ARTIST_NAME, searchData.getArtistName());
+        values.put(SearchContract.SearchEntry.COLUMN_WRAPPER_TYPE, searchData.getWrapperType());
 
         context.getContentResolver().insert(SearchContract.SearchEntry.CONTENT_URI, values);
     }

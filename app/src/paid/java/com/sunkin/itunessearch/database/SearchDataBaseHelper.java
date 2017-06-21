@@ -29,6 +29,8 @@ public class SearchDataBaseHelper extends SQLiteOpenHelper {
                 SearchContract.SearchEntry.COLUMN_TRACK_CENSORED_NAME + " TEXT NOT NULL, " +
                 SearchContract.SearchEntry.COLUMN_TRACK_NAME + " TEXT NOT NULL, " +
                 SearchContract.SearchEntry.COLUMN_TRACK_PRICE + " TEXT NOT NULL, " +
+                SearchContract.SearchEntry.COLUMN_TRACK_ARTIST_NAME + " TEXT NOT NULL, " +
+                SearchContract.SearchEntry.COLUMN_WRAPPER_TYPE + " TEXT NOT NULL, " +
                 SearchContract.SearchEntry.COLUMN_TRACK_ID + " TEXT NOT NULL " + " );";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);

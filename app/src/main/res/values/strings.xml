@@ -11,6 +11,12 @@
     <string name="action_remove_favorite">Remove from Favourites</string>
     <string name="favorites">Favorites</string>
     <string name="sign_out">Sign Out</string>
+    <string name="play_button">Press to play Priview video</string>
+    <string name="play_button_text">Play preview</string>
+    <string name="pause_button">pause playing</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="share">share</string>
 
     <string-array name="entity_selection_array">
         <item>song</item>

@@ -35,6 +35,12 @@ public class SearchData implements Parcelable {
     @SerializedName("trackId")
     private String trackId;
 
+    @SerializedName("artistName")
+    private String artistName;
+
+    @SerializedName("wrapperType")
+    private String wrapperType;
+
 
     public SearchData() {
     /*
@@ -42,7 +48,16 @@ public class SearchData implements Parcelable {
     **/
     }
 
-    public SearchData(String trackName, String artworkUrl30, String trackCensoredName, String trackPrice, String artworkUrl100, String previewUrl, String isFavorite, String trackId) {
+    public SearchData(String trackName,
+                      String artworkUrl30,
+                      String trackCensoredName,
+                      String trackPrice,
+                      String artworkUrl100,
+                      String previewUrl,
+                      String isFavorite,
+                      String trackId,
+                      String artistName,
+                      String wrapperType) {
         this.trackName = trackName;
         this.artworkUrl30 = artworkUrl30;
         this.trackCensoredName = trackCensoredName;
@@ -51,6 +66,8 @@ public class SearchData implements Parcelable {
         this.previewUrl = previewUrl;
         this.isFavorite = isFavorite;
         this.trackId = trackId;
+        this.artistName = artistName;
+        this.wrapperType = wrapperType;
     }
 
     protected SearchData(Parcel in) {
@@ -62,6 +79,8 @@ public class SearchData implements Parcelable {
         previewUrl = in.readString();
         isFavorite = in.readString();
         trackId = in.readString();
+        artistName = in.readString();
+        wrapperType = in.readString();
     }
 
     public static final Creator<SearchData> CREATOR = new Creator<SearchData>() {
@@ -91,6 +110,8 @@ public class SearchData implements Parcelable {
         dest.writeString(previewUrl);
         dest.writeString(isFavorite);
         dest.writeString(trackId);
+        dest.writeString(artistName);
+        dest.writeString(wrapperType);
     }
 
     @Override
@@ -104,6 +125,8 @@ public class SearchData implements Parcelable {
                 ", previewUrl='" + previewUrl + '\'' +
                 ", isFavorite='" + isFavorite + '\'' +
                 ", trackId='" + trackId + '\'' +
+                ", artistName='" + artistName + '\'' +
+                ", artistName='" + wrapperType + '\'' +
                 '}';
     }
 
@@ -172,6 +195,22 @@ public class SearchData implements Parcelable {
 
     public void setTrackId(String trackId) {
         this.trackId = trackId;
+    }
+
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
+
+    public String getWrapperType() {
+        return wrapperType;
+    }
+
+    public void setWrapperType(String wrapperType) {
+        this.wrapperType = wrapperType;
     }
 
     public String formateUrl(String url) {
