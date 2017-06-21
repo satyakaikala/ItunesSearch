@@ -102,6 +102,14 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void shareButton() {
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Found Track via Itunes Search");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Hey ! I've found an awesome track '"
+                + searchData.getTrackName()+"'"
+                + " By '" + searchData.getArtistName()+ "'"
+                + ". Found using Itunes Search App.");
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
     private void pausePreview() {

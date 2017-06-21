@@ -82,6 +82,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:actionProviderClass="android.widget.ShareActionProvider"
                         android:contentDescription="@string/pause_button"
                         android:drawableTop="@drawable/ic_action_share"
                         android:padding="5dp" />

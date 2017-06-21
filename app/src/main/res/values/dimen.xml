@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- list -->
     <dimen name="list_side_margin">4dp</dimen>
     <dimen name="list_toolbar_side_margin">0dp</dimen>
@@ -19,5 +19,7 @@
     <dimen name="detail_title_text_size">22sp</dimen>
     <dimen name="detail_body_text_size">22sp</dimen>
     <dimen name="text_view_padding">16dp</dimen>
+
+    <dimen name="design_fab_size_normal" tools:override="true">80dp</dimen>
 
 </resources>
