@@ -4,6 +4,9 @@ package com.sunkin.itunessearch.ui;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -20,6 +23,7 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.sunkin.itunessearch.ConnectionListener;
 import com.sunkin.itunessearch.R;
 import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchAdapter;
@@ -39,8 +43,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String SEARCH_TEXT_FAB = "search_text_fab";
     public static final String FRAGMENT_TAG = "search_dialog_fragment";
-    private static final int LOADER = 0;
-    private static final int RC_SIGN_IN = 1;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.empty_list_view)
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private SearchAdapter searchAdapter;
     private ArrayList<SearchData> searchDataArrayList;
     private SearchView searchView;
+    private StaggeredGridLayoutManager staggeredGridLayoutManager;
 
     private ConnectionListener networkChangeReceiver = new ConnectionListener();
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -64,8 +67,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Log.d(TAG, "OnCreate");
+
         searchDataArrayList = new ArrayList<>();
         searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
+        staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
         MobileAds.initialize(this, getString(R.string.adAppId));
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
@@ -159,8 +165,13 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
             searchAdapter.notifyDataSetChanged();
         } else {
             emptyTextView.setVisibility(View.VISIBLE);
-            Toast.makeText(MainActivity.this, "No items found. ! Please try again.", Toast.LENGTH_LONG).show();
+            showSnackBar(getString(R.string.error_in_keyword));
         }
+    }
+
+    private void showSnackBar(String msg) {
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinator), msg, Snackbar.LENGTH_LONG);
+        snackbar.show();
     }
 
     @Override
@@ -174,5 +185,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     public void searchCompleted() {
         Log.d(TAG, "Search completed, stopped progress ");
         progressBar.setVisibility(View.GONE);
+        searchView.clearFocus();
+        searchView.onActionViewCollapsed();
     }
 }

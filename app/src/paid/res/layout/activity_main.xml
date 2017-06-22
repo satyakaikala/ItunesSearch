@@ -21,14 +21,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="@string/no_data_available"/>
+        android:text="@string/no_data_available" />
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/toolbar_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?colorPrimary"
-        android:elevation="4dp"/>
+        android:elevation="4dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -38,20 +38,20 @@
         android:layout_margin="16dp"
         android:contentDescription="@string/fab_action_text"
         android:onClick="button"
-        app:layout_anchorGravity="bottom|center_horizontal"
+        android:scaleType="center"
         android:src="@drawable/fab_search"
+        android:stateListAnimator="@animator/fab_state_list_anim"
         app:backgroundTint="@color/colorAccent"
         app:borderWidth="0dp"
-        android:scaleType="center"
         app:elevation="6dp"
         app:fabSize="normal"
-        app:pressedTranslationZ="12dp" />
+        app:layout_anchorGravity="bottom|center_horizontal" />
 
     <ProgressBar
+        android:id="@+id/progress"
+        style="@android:style/Widget.Material.ProgressBar.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/progress"
         android:layout_gravity="center"
-        style="@android:style/Widget.Material.ProgressBar.Large"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 </android.support.design.widget.CoordinatorLayout>

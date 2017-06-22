@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="app_bar_elevation">4dp</dimen>
+    <dimen name="fab_elevation">6dp</dimen>
+    <dimen name="fab_pressedTranslationZ">12dp</dimen>
+    <dimen name="card_view_margin">4dp</dimen>
+    <dimen name="card_view_radius">0dp</dimen>
+    <dimen name="textsize_trackname">20sp</dimen>
+    <dimen name="trackprice_text_view_padding">16dp</dimen>
+</resources>

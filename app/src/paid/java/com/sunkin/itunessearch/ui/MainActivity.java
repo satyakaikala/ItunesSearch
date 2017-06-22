@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         Log.d(TAG, "OnCreate");
         initSthetho();
         getSupportLoaderManager().initLoader(LOADER, null, this);
-        this.registerReceiver(networkChangeReceiver, filter);
         searchDataArrayList = new ArrayList<>();
         searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -126,6 +125,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        this.registerReceiver(networkChangeReceiver, filter);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         firebaseAuth.addAuthStateListener(authStateListener);
@@ -137,13 +142,16 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         if (authStateListener != null) {
             firebaseAuth.removeAuthStateListener(authStateListener);
         }
-        searchAdapter.clear();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        this.unregisterReceiver(networkChangeReceiver);
+        if (networkChangeReceiver != null) {
+            Log.d(TAG, "Unregistering receiver");
+            this.unregisterReceiver(networkChangeReceiver);
+            networkChangeReceiver = null;
+        }
     }
 
     private void onSignedInInitailize(String userName) {

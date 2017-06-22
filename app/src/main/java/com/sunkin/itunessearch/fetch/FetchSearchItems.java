@@ -2,6 +2,7 @@ package com.sunkin.itunessearch.fetch;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchData;
@@ -52,6 +53,7 @@ public class FetchSearchItems extends AsyncTask<String, Void, ArrayList<SearchDa
             try {
                 searchData = call.execute().body().getResults();
             } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -67,6 +69,7 @@ public class FetchSearchItems extends AsyncTask<String, Void, ArrayList<SearchDa
     @Override
     protected void onPostExecute(ArrayList<SearchData> searchData) {
         super.onPostExecute(searchData);
+        Log.d(TAG, "Search completed");
         responseHandler.searchCompleted();
         responseHandler.updateSearchResults(searchData);
     }

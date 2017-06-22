@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+def keyStorePropFile = rootProject.file("keystore.properties")
+
+def keyStoreProperties = new Properties()
+keyStoreProperties.load(new FileInputStream(keyStorePropFile))
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
@@ -11,8 +16,19 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    signingConfigs {
+        rel {
+            keyAlias keyStoreProperties['keyAlias']
+            keyPassword keyStoreProperties['keyPassword']
+            storeFile file(keyStoreProperties['storeFile'])
+            storePassword keyStoreProperties['storePassword']
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.rel
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -31,6 +47,7 @@ android {
         }
     }
 }
+
 
 apply plugin: 'android-apt'
 

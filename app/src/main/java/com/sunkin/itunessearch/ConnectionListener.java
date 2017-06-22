@@ -10,6 +10,7 @@ import android.util.Log;
  */
 
 public class ConnectionListener extends BroadcastReceiver {
+
     private static final String TAG = ConnectionListener.class.getSimpleName();
 
     @Override

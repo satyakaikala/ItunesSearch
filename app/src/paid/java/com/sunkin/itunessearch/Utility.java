@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
@@ -139,9 +141,12 @@ public class Utility {
     }
 
     public static void showNotification(Context context) {
+        Bitmap largeIcon;
+        largeIcon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.app_launcher);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.mipmap.app_launcher)
+                        .setLargeIcon(largeIcon)
                         .setContentTitle(context.getString(R.string.network_message))
                         .setContentText(context.getString(com.sunkin.itunessearch.R.string.notification_message));
 
