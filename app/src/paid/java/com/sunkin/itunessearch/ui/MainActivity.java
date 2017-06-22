@@ -17,7 +17,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.os.Bundle;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private SearchView searchView;
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
+    private StaggeredGridLayoutManager staggeredGridLayoutManager;
 
     private ConnectionListener networkChangeReceiver = new ConnectionListener();
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -79,9 +80,13 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         Log.d(TAG, "OnCreate");
+        initSthetho();
         getSupportLoaderManager().initLoader(LOADER, null, this);
+        this.registerReceiver(networkChangeReceiver, filter);
         searchDataArrayList = new ArrayList<>();
         searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
+        staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
         firebaseAuth = FirebaseAuth.getInstance();
 
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -110,10 +115,14 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         };
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        this.registerReceiver(networkChangeReceiver, filter);
+    private void initSthetho() {
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(
+                                Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(
+                                Stetho.defaultInspectorModulesProvider(this))
+                        .build());
     }
 
     @Override
@@ -213,20 +222,23 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     @Override
     public void handleFavoriteAdd(SearchData data) {
         Log.d(TAG, "Adding to favorite list");
-        if (data != null) {
+        if (data != null && !Utility.isItemExists(this, data)) {
             data.setIsFavorite(TRUE);
             Utility.saveFav(this, data);
+        } else {
+            showSnackBar(getString(R.string.fav_already_exists_msg));
         }
     }
 
     @Override
     public void handleFavoriteRemove(SearchData searchData) {
-        if (searchData != null) {
+        if (searchData != null && Utility.isItemExists(this, searchData)) {
             searchData.setIsFavorite(FALSE);
             Utility.removeFav(this, searchData);
+        } else {
+            showSnackBar(getString(R.string.item_not_exists));
         }
         showFavoritesList();
-//        emptyTextView.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -243,27 +255,39 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
 
     @Override
     public void updateSearchResults(ArrayList<SearchData> searchData) {
-        displayItems(searchData);
-    }
-
-    public void showFavoritesList() {
-        displayItems(Utility.getFavoriteCollection(this));
-    }
-
-    public void displayItems(ArrayList<SearchData> searchData) {
-        if (searchData.size() != 0) {
+        searchDataArrayList = searchData;
+        if (searchDataArrayList.size() != 0) {
             emptyTextView.setVisibility(View.GONE);
             Log.d(TAG, "Received response successfully : " + searchData.toString());
-            searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchData);
+            searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
             recyclerView.setAdapter(searchAdapter);
-            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-            recyclerView.setLayoutManager(staggeredGridLayoutManager);
             searchAdapter.notifyDataSetChanged();
         } else {
             emptyTextView.setVisibility(View.VISIBLE);
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinator), "Please enter valid Search keyword", Snackbar.LENGTH_LONG);
-            snackbar.show();
+            showSnackBar(getString(R.string.error_in_keyword));
         }
+    }
+
+    public void showFavoritesList() {
+        searchDataArrayList = (Utility.getFavoriteCollection(this));
+        if (searchDataArrayList.size() != 0) {
+            emptyTextView.setVisibility(View.GONE);
+            searchAdapter = new SearchAdapter(MainActivity.this, this, searchDataArrayList);
+            staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+            recyclerView.setLayoutManager(staggeredGridLayoutManager);
+            recyclerView.setAdapter(searchAdapter);
+            searchAdapter.notifyDataSetChanged();
+        } else {
+            searchAdapter.clear();
+            searchAdapter.notifyDataSetChanged();
+            emptyTextView.setVisibility(View.VISIBLE);
+            showSnackBar(getString(R.string.fav_collection_empty));
+        }
+    }
+
+    private void showSnackBar(String msg) {
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinator), msg, Snackbar.LENGTH_LONG);
+        snackbar.show();
     }
 
     @Override
@@ -277,6 +301,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     public void searchCompleted() {
         Log.d(TAG, "Search completed, stopped progress ");
         progressBar.setVisibility(View.GONE);
+        searchView.clearFocus();
+        searchView.onActionViewCollapsed();
     }
 
     @Override

@@ -7,8 +7,8 @@
     <string name="dialog_hint">keyword</string>
     <string name="dialog_title">Do Search</string>
     <string name="over_flow_menu">Over Flow Menu</string>
-    <string name="action_add_favourite">Add to Favourites</string>
-    <string name="action_remove_favorite">Remove from Favourites</string>
+    <string name="action_add_favorite">Add to Favorite</string>
+    <string name="action_remove_favorite">Remove from Favorite</string>
     <string name="favorites">Favorites</string>
     <string name="sign_out">Sign Out</string>
     <string name="play_button">Press to play Priview video</string>
@@ -19,6 +19,8 @@
     <string name="share">share</string>
     <string name="network_message">Network Connection is available</string>
     <string name="notification_message">Start your search using Itunes Search</string>
+    <string name="error_no_fav">No Favorite collections.</string>
+    <string name="error_in_keyword">Please enter valid Search keyword</string>
 
     <string-array name="entity_selection_array">
         <item>song</item>

@@ -3,7 +3,7 @@
     package="com.sunkin.itunessearch">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -34,9 +34,29 @@
             android:parentActivityName=".ui.MainActivity" />
 
         <provider
-            android:authorities="com.sunkin.itunessearch"
             android:name=".database.SearchProvider"
-            android:exported="false"/>
+            android:authorities="com.sunkin.itunessearch"
+            android:exported="false" />
+
+        <receiver
+            android:name=".widget.FavCollectionWidgetProvider"
+            android:enabled="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.sunkin.itunessearch.ACTION_DATA_UPDATED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_detail" />
+        </receiver>
+
+        <service
+            android:name=".widget.DetailWidgetRemoteViewService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
     </application>
 
 </manifest>

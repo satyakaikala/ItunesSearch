@@ -5,6 +5,8 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import java.net.URI;
+
 /**
  * Created by kaika on 6/19/2017.
  */
@@ -68,6 +70,10 @@ public class SearchContract {
 
         public static Uri searchItemUri(String id) {
             return CONTENT_URI.buildUpon().appendPath(id).build();
+        }
+
+        public static Uri getUriForFav() {
+            return CONTENT_URI.buildUpon().build();
         }
     }
 }

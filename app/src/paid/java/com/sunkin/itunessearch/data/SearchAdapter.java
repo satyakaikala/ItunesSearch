@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.sunkin.itunessearch.R;
+import com.sunkin.itunessearch.Utility;
 
 import java.util.ArrayList;
 
@@ -68,6 +70,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.over_flow_menu, popupMenu.getMenu());
         popupMenu.setOnMenuItemClickListener(new MyMenuItemClickListener());
+        Menu menu = popupMenu.getMenu();
+        MenuItem addFav = menu.getItem(0);
+        addFav.setVisible((!Utility.isItemExists(context, searchData.get(itemPosition))));
+        MenuItem removeFav = menu.getItem(1);
+        removeFav.setVisible(Utility.isItemExists(context, searchData.get(itemPosition)));
         popupMenu.show();
     }
 
