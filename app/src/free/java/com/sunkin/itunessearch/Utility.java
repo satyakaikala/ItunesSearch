@@ -54,9 +54,33 @@ public class Utility {
 
     public static boolean toBoolean(String selection) {
         boolean fav = false;
-        if (Boolean.parseBoolean(selection)){
+        if (Boolean.parseBoolean(selection)) {
             fav = true;
         }
         return fav;
+    }
+
+    public static void showNotification(Context context) {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(context.getString(R.string.network_message))
+                        .setContentText(context.getString(com.sunkin.itunessearch.R.string.notification_message));
+
+        Intent resultIntent = new Intent(context, MainActivity.class);
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        context,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(resultPendingIntent);
+        mBuilder.setAutoCancel(true);
+        int mNotificationId = 99;
+        NotificationManager mNotifyMgr =
+                (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 }

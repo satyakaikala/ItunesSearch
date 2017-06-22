@@ -1,7 +1,9 @@
 package com.sunkin.itunessearch.fetch;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
+import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchData;
 import com.sunkin.itunessearch.data.SearchResponse;
 import com.sunkin.itunessearch.network.ApiClient;
@@ -21,10 +23,12 @@ public class FetchSearchItems extends AsyncTask<String, Void, ArrayList<SearchDa
     private static final String TAG = FetchSearchItems.class.getSimpleName();
     private static SearchNetworkInterface searchNetwork;
     private ResponseHandler responseHandler;
+    private Context context;
 
-    public FetchSearchItems(ResponseHandler handler) {
+    public FetchSearchItems(ResponseHandler handler, Context context) {
         this.responseHandler = handler;
         searchNetwork = ApiClient.getClient().create(SearchNetworkInterface.class);
+        this.context = context;
 
     }
 
@@ -39,15 +43,17 @@ public class FetchSearchItems extends AsyncTask<String, Void, ArrayList<SearchDa
     @Override
     protected ArrayList<SearchData> doInBackground(String... params) {
 
-        ArrayList<SearchData> searchData = null;
+        ArrayList<SearchData> searchData = new ArrayList<>();
         String keyword = params[0];
         String entity = params[1];
         responseHandler.searchStarted();
-        Call<SearchResponse> call = searchNetwork.getSearchResults(keyword, entity);
-        try {
-            searchData = call.execute().body().getResults();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (Utility.isOnline(context)) {
+            Call<SearchResponse> call = searchNetwork.getSearchResults(keyword, entity);
+            try {
+                searchData = call.execute().body().getResults();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return searchData;
     }

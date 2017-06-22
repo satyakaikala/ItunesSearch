@@ -4,7 +4,10 @@ package com.sunkin.itunessearch.ui;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.Loader;
 import android.database.Cursor;
 import android.support.v4.app.LoaderManager;
@@ -14,6 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.os.Bundle;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +30,7 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.sunkin.itunessearch.ConnectionListener;
 import com.sunkin.itunessearch.R;
 import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchAdapter;
@@ -65,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
 
+    private ConnectionListener networkChangeReceiver = new ConnectionListener();
+    IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +111,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        this.registerReceiver(networkChangeReceiver, filter);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         firebaseAuth.addAuthStateListener(authStateListener);
@@ -115,6 +129,12 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
             firebaseAuth.removeAuthStateListener(authStateListener);
         }
         searchAdapter.clear();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.unregisterReceiver(networkChangeReceiver);
     }
 
     private void onSignedInInitailize(String userName) {
@@ -214,8 +234,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
      */
     void doSearch() {
         Log.d(TAG, "Search started, searching for " + Utility.getSearchKeyword(this) + " in " + Utility.getSearchEntity(this) + " category");
-        FetchSearchItems doSearch = new FetchSearchItems(this);
-        doSearch.execute(Utility.getSearchKeyword(this), Utility.getSearchEntity(this));
+        String keyword = Utility.getSearchKeyword(this);
+        String entity = Utility.getSearchEntity(this);
+
+        FetchSearchItems doSearch = new FetchSearchItems(this, MainActivity.this);
+        doSearch.execute(keyword, entity);
     }
 
     @Override
@@ -238,7 +261,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
             searchAdapter.notifyDataSetChanged();
         } else {
             emptyTextView.setVisibility(View.VISIBLE);
-            Toast.makeText(MainActivity.this, "No items found. ! Please try again.", Toast.LENGTH_LONG).show();
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.coordinator), "Please enter valid Search keyword", Snackbar.LENGTH_LONG);
+            snackbar.show();
         }
     }
 

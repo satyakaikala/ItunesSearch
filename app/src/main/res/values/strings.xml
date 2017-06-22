@@ -17,6 +17,8 @@
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="share">share</string>
+    <string name="network_message">Network Connection is available</string>
+    <string name="notification_message">Start your search using Itunes Search</string>
 
     <string-array name="entity_selection_array">
         <item>song</item>

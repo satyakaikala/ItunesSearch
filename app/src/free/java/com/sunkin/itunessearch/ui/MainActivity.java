@@ -54,6 +54,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private ArrayList<SearchData> searchDataArrayList;
     private SearchView searchView;
 
+    private ConnectionListener networkChangeReceiver = new ConnectionListener();
+    IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +70,18 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        this.registerReceiver(networkChangeReceiver, filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.unregisterReceiver(networkChangeReceiver);
     }
 
     public void button(@SuppressWarnings("UnusedParameters") View view) {
@@ -120,8 +136,11 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
      */
     void doSearch() {
         Log.d(TAG, "Search started, searching for " + Utility.getSearchKeyword(this) + " in " + Utility.getSearchEntity(this) + " category");
-        FetchSearchItems doSearch = new FetchSearchItems(this);
-        doSearch.execute(Utility.getSearchKeyword(this), Utility.getSearchEntity(this));
+        String keyword = Utility.getSearchKeyword(this);
+        String entity = Utility.getSearchEntity(this);
+
+        FetchSearchItems doSearch = new FetchSearchItems(this, MainActivity.this);
+        doSearch.execute(keyword, entity);
     }
 
     @Override
