@@ -32,6 +32,7 @@ public class Utility {
     public static final String BASE_URL = "https://itunes.apple.com/";
     private static final String SEARCH_KEYWORD_KEY = "search_keyword";
     private static final String SEARCH_ENTITY_KEY = "entity_key";
+    private static final String HOME_SCREEN_EVER_SHOWN = "home_screen_ever_shown";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
 
@@ -40,6 +41,18 @@ public class Utility {
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    public static void saveHomeScreenShowed(Context context, boolean showed) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(HOME_SCREEN_EVER_SHOWN, showed);
+        editor.apply();
+    }
+
+    public static boolean homeScreenEverShowed(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(HOME_SCREEN_EVER_SHOWN, false);
     }
 
     public static void saveSearchKeyword(Context context, String keyword) {
@@ -63,7 +76,7 @@ public class Utility {
 
     public static String getSearchEntity(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString(SEARCH_ENTITY_KEY, "musicVideo");
+        return preferences.getString(SEARCH_ENTITY_KEY, context.getString(R.string.default_entity));
     }
 
     public static boolean toBoolean(String selection) {
@@ -78,8 +91,8 @@ public class Utility {
         ArrayList<SearchData> searchDataArrayList = new ArrayList<>();
         Cursor cursor = context.getContentResolver().query(SearchContract.SearchEntry.CONTENT_URI,
                 SearchContract.SearchEntry.SEARCH_COLUMNS,
-                SearchContract.SearchEntry.COLUMN_TRACK_ISFAVORITE + " =?", new String[]{"true"}, null);
-        if (cursor.moveToFirst()) {
+                SearchContract.SearchEntry.COLUMN_TRACK_ISFAVORITE + " =?", new String[]{TRUE}, null);
+        if (cursor != null && cursor.moveToFirst()) {
             do {
                 SearchData data = new SearchData();
                 data.setArtworkUrl100(cursor.getString(SearchContract.SearchEntry.COL_TRACK_ART_WORK_100));
@@ -94,7 +107,10 @@ public class Utility {
                 data.setWrapperType(cursor.getString(SearchContract.SearchEntry.COL_WRAPPER_TYPE));
                 searchDataArrayList.add(data);
             } while (cursor.moveToNext());
+
+            cursor.close();
         }
+
         return searchDataArrayList;
     }
 
@@ -144,12 +160,16 @@ public class Utility {
         Bitmap largeIcon;
         largeIcon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.app_launcher);
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.mipmap.app_launcher)
-                        .setLargeIcon(largeIcon)
-                        .setContentTitle(context.getString(R.string.network_message))
-                        .setContentText(context.getString(com.sunkin.itunessearch.R.string.notification_message));
+                null;
+        mBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.mipmap.app_launcher)
+                .setLargeIcon(largeIcon)
+                .setContentTitle(context.getString(R.string.network_message))
+                .setContentText(context.getString(R.string.notification_message));
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            mBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
+        }
         Intent resultIntent = new Intent(context, MainActivity.class);
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(

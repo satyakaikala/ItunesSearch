@@ -18,8 +18,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -43,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String SEARCH_TEXT_FAB = "search_text_fab";
     public static final String FRAGMENT_TAG = "search_dialog_fragment";
+    private static final String SEARCH_DATA_KEY = "search_data_key";
+
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.empty_list_view)
@@ -76,6 +76,23 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(SEARCH_DATA_KEY, searchDataArrayList);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        searchDataArrayList = savedInstanceState.getParcelableArrayList(SEARCH_DATA_KEY);
+        if (searchDataArrayList != null && searchDataArrayList.size() != 0) {
+            searchAdapter = new SearchAdapter(this, this, searchDataArrayList);
+            recyclerView.setAdapter(searchAdapter);
+            emptyTextView.setVisibility(View.GONE);
+        }
     }
 
     @Override

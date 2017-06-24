@@ -21,6 +21,12 @@
     <string name="notification_message">Start your search using Itunes Search</string>
     <string name="error_no_fav">No Favorite collections.</string>
     <string name="error_in_keyword">Please enter valid Search keyword</string>
+    <string name="user_loggedin_msg">You are now signed in. Welcome to Itunes Search.</string>
+    <string name="dialog_button_search">Search</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="default_entity">musicVideo</string>
+    <string name="added_to_fav">Added to collection</string>
+    <string name="removed_from_fav">Removed from Favorites</string>
 
     <string-array name="entity_selection_array">
         <item>song</item>

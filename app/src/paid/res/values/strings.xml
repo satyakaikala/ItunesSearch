@@ -3,4 +3,6 @@
     <string name="fav_already_exists_msg">Item is already in collection</string>
     <string name="item_not_exists">Item not exists in collection</string>
     <string name="fav_collection_empty">Favorite collection is empty</string>
+    <string name="dialog_button_show">Show</string>
+    <string name="fav_found_msg">Found Favorites, do you want to check your collection </string>
 </resources>

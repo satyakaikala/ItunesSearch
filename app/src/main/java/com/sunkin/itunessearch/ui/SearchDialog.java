@@ -60,14 +60,14 @@ public class SearchDialog extends DialogFragment {
 
         builder.setView(customView);
         builder.setMessage(R.string.dialog_title);
-        builder.setPositiveButton("Search", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.dialog_button_search, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 saveSearchKeyword();
                 getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
             }
         });
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton(R.string.dialog_button_cancel, null);
 
         Dialog dialog = builder.create();
 

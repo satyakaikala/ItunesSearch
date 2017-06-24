@@ -1,6 +1,7 @@
 package com.sunkin.itunessearch.data;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -32,10 +33,16 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
     private final SearchItemOnClickHandler searchItemOnClickHandler;
     private ArrayList<SearchData> searchData = new ArrayList<>();
     private int itemPosition = -1;
+    private Cursor cursor;
     public SearchAdapter(Context context, SearchItemOnClickHandler searchItemOnClickHandler, ArrayList<SearchData> searchDataArrayList) {
         this.context = context;
         this.searchData = searchDataArrayList;
         this.searchItemOnClickHandler = searchItemOnClickHandler;
+    }
+
+    public void setCursor(Cursor cursor) {
+        this.cursor = cursor;
+        notifyDataSetChanged();
     }
 
     @Override

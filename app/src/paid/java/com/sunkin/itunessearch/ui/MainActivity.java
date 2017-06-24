@@ -1,7 +1,7 @@
 package com.sunkin.itunessearch.ui;
 
 
-import android.app.SearchManager;
+import android.app.*;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -30,7 +30,10 @@ import com.facebook.stetho.Stetho;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.sunkin.itunessearch.ConnectionListener;
+import com.sunkin.itunessearch.FirebaseHelper;
 import com.sunkin.itunessearch.R;
 import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchAdapter;
@@ -52,8 +55,10 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String SEARCH_TEXT_FAB = "search_text_fab";
-    public static final String FRAGMENT_TAG = "search_dialog_fragment";
+    public static final String SEARCH_DIALOG_FRAGMENT = "search_dialog_fragment";
+    public static final String ALERT_DIALOG_FRAGMENT = "alert_dialog_fragment";
     public static final String ANONYMOUS = "anonymous";
+    private static final String SEARCH_DATA_KEY = "search_data_key";
     private String mUsername;
     private static final int LOADER = 0;
     private static final int RC_SIGN_IN = 1;
@@ -68,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private ArrayList<SearchData> searchDataArrayList;
     private SearchView searchView;
     private FirebaseAuth firebaseAuth;
+    private DatabaseReference databaseReference;
+    private FirebaseDatabase firebaseDatabase;
+    private FirebaseHelper firebaseHelper;
     private FirebaseAuth.AuthStateListener authStateListener;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
 
@@ -81,20 +89,23 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         ButterKnife.bind(this);
         Log.d(TAG, "OnCreate");
         initSthetho();
+        Utility.saveHomeScreenShowed(this, true);
         getSupportLoaderManager().initLoader(LOADER, null, this);
         searchDataArrayList = new ArrayList<>();
         searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         firebaseAuth = FirebaseAuth.getInstance();
-
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
+        firebaseHelper = new FirebaseHelper(this, databaseReference);
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
                 if (user != null) {
-                    Toast.makeText(MainActivity.this, "You are now signed in. Welcome to Itunes Search.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.user_loggedin_msg, Toast.LENGTH_SHORT).show();
                     onSignedInInitailize(user.getDisplayName());
                 } else {
                     onSignesOutCleanUp();
@@ -122,6 +133,23 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
                         .enableWebKitInspector(
                                 Stetho.defaultInspectorModulesProvider(this))
                         .build());
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(SEARCH_DATA_KEY, searchDataArrayList);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        searchDataArrayList = savedInstanceState.getParcelableArrayList(SEARCH_DATA_KEY);
+        if (searchDataArrayList != null && searchDataArrayList.size() != 0) {
+            searchAdapter = new SearchAdapter(this, this, searchDataArrayList);
+            recyclerView.setAdapter(searchAdapter);
+            emptyTextView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -156,6 +184,20 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
 
     private void onSignedInInitailize(String userName) {
         mUsername = userName;
+        Log.d(TAG, "onSignedInInitailize");
+        searchDataArrayList = Utility.getFavoriteCollection(this);
+        if (searchDataArrayList != null &&
+                searchDataArrayList.size() != 0 &&
+                Utility.homeScreenEverShowed(this)) {
+            Utility.saveHomeScreenShowed(this, false);
+            showAlertDialog();
+        }
+    }
+
+    private void showAlertDialog() {
+        AlertDialog alertDialog = new AlertDialog();
+        alertDialog.show(getFragmentManager(), ALERT_DIALOG_FRAGMENT);
+
     }
 
     private void onSignesOutCleanUp() {
@@ -169,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         SearchDialog dialog = new SearchDialog();
         args.putString(SEARCH_TEXT_FAB, searchView.getQuery().toString());
         dialog.setArguments(args);
-        dialog.show(getFragmentManager(), FRAGMENT_TAG);
+        dialog.show(getFragmentManager(), SEARCH_DIALOG_FRAGMENT);
         searchView.onActionViewCollapsed();
     }
 
@@ -233,6 +275,8 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         if (data != null && !Utility.isItemExists(this, data)) {
             data.setIsFavorite(TRUE);
             Utility.saveFav(this, data);
+            firebaseHelper.save(data);
+            showSnackBar(getString(R.string.added_to_fav));
         } else {
             showSnackBar(getString(R.string.fav_already_exists_msg));
         }
@@ -243,9 +287,14 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         if (searchData != null && Utility.isItemExists(this, searchData)) {
             searchData.setIsFavorite(FALSE);
             Utility.removeFav(this, searchData);
+            showSnackBar(getString(R.string.removed_from_fav));
         } else {
             showSnackBar(getString(R.string.item_not_exists));
         }
+        showFavoritesList();
+    }
+
+    void foundFavs() {
         showFavoritesList();
     }
 
@@ -323,12 +372,13 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data.getCount() != 0) {
-
+            searchAdapter.setCursor(data);
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        searchAdapter.setCursor(null);
     }
 
 }
