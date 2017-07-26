@@ -4,15 +4,22 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.sunkin.itunessearch.ResponseHandler;
 import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchData;
 import com.sunkin.itunessearch.data.SearchResponse;
 import com.sunkin.itunessearch.network.ApiClient;
 import com.sunkin.itunessearch.network.SearchNetworkInterface;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 
 /**
@@ -32,14 +39,14 @@ public class FetchSearchItems extends AsyncTask<String, Void, ArrayList<SearchDa
         this.context = context;
 
     }
-
-    public interface ResponseHandler {
-        void updateSearchResults(ArrayList<SearchData> searchData);
-
-        void searchStarted();
-
-        void searchCompleted();
-    }
+//
+//    public interface ResponseHandler {
+//        void updateSearchResults(ArrayList<SearchData> searchData);
+//
+//        void searchStarted();
+//
+//        void searchCompleted();
+//    }
 
     @Override
     protected ArrayList<SearchData> doInBackground(String... params) {
@@ -49,13 +56,13 @@ public class FetchSearchItems extends AsyncTask<String, Void, ArrayList<SearchDa
         String entity = params[1];
         responseHandler.searchStarted();
         if (Utility.isOnline(context)) {
-            Call<SearchResponse> call = searchNetwork.getSearchResults(keyword, entity);
-            try {
-                searchData = call.execute().body().getResults();
-            } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
-                e.printStackTrace();
-            }
+            Observable<SearchResponse> call = searchNetwork.getSearchResults(keyword, entity);
+//            try {
+//                searchData = call.execute().body().getResults();
+//            } catch (IOException e) {
+//                Log.e(TAG, e.getMessage());
+//                e.printStackTrace();
+//            }
         }
         return searchData;
     }

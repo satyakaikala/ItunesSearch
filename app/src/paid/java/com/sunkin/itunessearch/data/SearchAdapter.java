@@ -141,9 +141,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.SearchView
         }
     }
 
-    public void add (SearchData data){
+    public void add (ArrayList<SearchData> data){
         if (data != null) {
-            searchData.add(data);
+            searchData.addAll(data);
             notifyDataSetChanged();
         }
     }

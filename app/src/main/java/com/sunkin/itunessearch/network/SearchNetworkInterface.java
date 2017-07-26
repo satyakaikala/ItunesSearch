@@ -2,6 +2,7 @@ package com.sunkin.itunessearch.network;
 
 import com.sunkin.itunessearch.data.SearchResponse;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -13,6 +14,9 @@ import retrofit2.http.Query;
 public interface SearchNetworkInterface {
 
     //https://itunes.apple.com/search?term=jack+johnson&entity=musicVideo
+//    @GET("search")
+//    Call<SearchResponse> getSearchResults(@Query("term") String query, @Query("entity") String entity);
+
     @GET("search")
-    Call<SearchResponse> getSearchResults(@Query("term") String query, @Query("entity") String entity);
+    Observable<SearchResponse> getSearchResults(@Query("term") String query, @Query("entity") String entity);
 }

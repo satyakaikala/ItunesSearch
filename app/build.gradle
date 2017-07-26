@@ -18,6 +18,16 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        jackOptions {
+            enabled true
+        }
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+
     }
     buildTypes {
         release {
@@ -40,7 +50,7 @@ android {
 }
 
 
-apply plugin: 'android-apt'
+//apply plugin: 'android-apt'
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -55,16 +65,23 @@ dependencies {
     compile 'org.jetbrains:annotations-java5:15.0'
     compile 'com.jakewharton:butterknife:8.4.0'
     compile 'com.google.code.gson:gson:2.7'
-    compile 'com.squareup.retrofit2:retrofit:2.0.2'
-    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile 'com.google.firebase:firebase-auth:10.2.6'
     compile 'com.firebaseui:firebase-ui-auth:1.2.0'
     compile 'com.facebook.stetho:stetho:1.4.1'
     compile 'com.google.firebase:firebase-database:10.2.6'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.7.22'
-    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    annotationProcessor  'com.jakewharton:butterknife-compiler:8.4.0'
     freeCompile 'com.google.firebase:firebase-ads:10.2.6'
+
+    /* reactive */
+    compile 'io.reactivex.rxjava2:rxjava:2.0.2'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
+
+    /* Retrofit 2*/
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
 }
 
 

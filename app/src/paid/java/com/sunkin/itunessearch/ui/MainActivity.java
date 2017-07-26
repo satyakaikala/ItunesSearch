@@ -1,21 +1,21 @@
 package com.sunkin.itunessearch.ui;
 
 
-import android.app.*;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.Loader;
-import android.database.Cursor;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.os.Bundle;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.Menu;
@@ -35,11 +35,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.sunkin.itunessearch.ConnectionListener;
 import com.sunkin.itunessearch.FirebaseHelper;
 import com.sunkin.itunessearch.R;
+import com.sunkin.itunessearch.ResponseHandler;
 import com.sunkin.itunessearch.Utility;
 import com.sunkin.itunessearch.data.SearchAdapter;
 import com.sunkin.itunessearch.data.SearchData;
+import com.sunkin.itunessearch.data.SearchResponse;
 import com.sunkin.itunessearch.database.SearchContract;
-import com.sunkin.itunessearch.fetch.FetchSearchItems;
+import com.sunkin.itunessearch.network.ApiClient;
+import com.sunkin.itunessearch.network.SearchNetworkInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,11 +50,15 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.sunkin.itunessearch.Utility.FALSE;
 import static com.sunkin.itunessearch.Utility.TRUE;
 
-public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler, FetchSearchItems.ResponseHandler, LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity implements SearchAdapter.SearchItemOnClickHandler, ResponseHandler, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String SEARCH_TEXT_FAB = "search_text_fab";
@@ -78,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
     private FirebaseHelper firebaseHelper;
     private FirebaseAuth.AuthStateListener authStateListener;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
+    private CompositeDisposable compositeDisposable;
 
     private ConnectionListener networkChangeReceiver = new ConnectionListener();
     IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -306,16 +314,23 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
         String keyword = Utility.getSearchKeyword(this);
         String entity = Utility.getSearchEntity(this);
 
-        FetchSearchItems doSearch = new FetchSearchItems(this, MainActivity.this);
-        doSearch.execute(keyword, entity);
+        Observable<SearchResponse> responseObservable = ApiClient.getClient().create(SearchNetworkInterface.class)
+                .getSearchResults(keyword, entity)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        responseObservable.subscribe(this::handleSuccess, this::handleError);
     }
 
-    @Override
-    public void updateSearchResults(ArrayList<SearchData> searchData) {
-        searchDataArrayList = searchData;
+    private void handleError(Throwable e) {
+        Log.e(TAG, "Error: " + e.getLocalizedMessage(), e);
+    }
+
+    public void handleSuccess(SearchResponse response){
+        searchDataArrayList = response.getResults();
         if (searchDataArrayList.size() != 0) {
             emptyTextView.setVisibility(View.GONE);
-            Log.d(TAG, "Received response successfully : " + searchData.toString());
+            Log.d(TAG, "Received response successfully : " + searchDataArrayList.toString());
             searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
             recyclerView.setAdapter(searchAdapter);
             searchAdapter.notifyDataSetChanged();
@@ -323,6 +338,21 @@ public class MainActivity extends AppCompatActivity implements SearchAdapter.Sea
             emptyTextView.setVisibility(View.VISIBLE);
             showSnackBar(getString(R.string.error_in_keyword));
         }
+    }
+
+    @Override
+    public void updateSearchResults(ArrayList<SearchData> searchData) {
+//        searchDataArrayList = searchData;
+//        if (searchDataArrayList.size() != 0) {
+//            emptyTextView.setVisibility(View.GONE);
+//            Log.d(TAG, "Received response successfully : " + searchData.toString());
+//            searchAdapter = new SearchAdapter(MainActivity.this, MainActivity.this, searchDataArrayList);
+//            recyclerView.setAdapter(searchAdapter);
+//            searchAdapter.notifyDataSetChanged();
+//        } else {
+//            emptyTextView.setVisibility(View.VISIBLE);
+//            showSnackBar(getString(R.string.error_in_keyword));
+//        }
     }
 
     public void showFavoritesList() {
